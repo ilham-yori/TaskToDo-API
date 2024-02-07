@@ -54,4 +54,9 @@ class TaskRepository
 		$id = $this->tasks->save($editedData);
 		return $id;
 	}
+
+    public function deleteTaskById(string $id){
+        $task = $this->tasks->deleteQuery(['_id'=>$id]);
+		return $task;
+    }
 }

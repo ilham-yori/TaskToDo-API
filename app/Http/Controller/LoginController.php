@@ -4,6 +4,7 @@ namespace App\ContohBootcamp\Controllers;
 
 use App\ContohBootcamp\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\User as ModelsUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -14,7 +15,7 @@ class LoginController extends Controller {
 		// check email & password
 		$email = $request->post('email');
 		$password = $request->post('password');
-		$count = User::where(['email'=>$email, 'password'=>Hash::make($password)])->count();
+		$count = ModelsUser::where(['email'=>$email, 'password'=>Hash::make($password)])->count();
 
 		$isExist = false;
 		if($count > 0)
