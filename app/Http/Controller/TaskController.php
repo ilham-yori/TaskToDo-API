@@ -57,7 +57,14 @@ class TaskController extends Controller {
 		]);
 
 		$taskId = $request->post('task_id');
-		$formData = $request->only('title', 'description', 'assigned', 'subtasks');
+
+        $formData = [
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'assigned' => $request->input('assigned', null),
+            'subtasks' => $request->input('subtasks')
+        ];
+
 		$task = $this->taskService->getById($taskId);
 
 		$this->taskService->updateTask($task, $formData);
@@ -96,15 +103,14 @@ class TaskController extends Controller {
 	// TODO: assignTask()
 	public function assignTask(Request $request)
 	{
-		$mongoTasks = new MongoModel('tasks');
 		$request->validate([
 			'task_id'=>'required',
 			'assigned'=>'required'
 		]);
 
 		$taskId = $request->get('task_id');
-		$assigned = $request->post('assigned');
-		$existTask = $mongoTasks->find(['_id'=>$taskId]);
+		$assigned = $request->only('assigned');
+		$existTask = $this->taskService->getById($taskId);
 
 		if(!$existTask)
 		{
@@ -113,11 +119,9 @@ class TaskController extends Controller {
 			], 401);
 		}
 
-		$existTask['assigned'] = $assigned;
+		$this->taskService->updateTask($existTask, $assigned);
 
-		$mongoTasks->save($existTask);
-
-		$task = $mongoTasks->find(['_id'=>$taskId]);
+		$task = $this->taskService->getById($taskId);
 
 		return response()->json($task);
 	}
@@ -125,13 +129,12 @@ class TaskController extends Controller {
 	// TODO: unassignTask()
 	public function unassignTask(Request $request)
 	{
-		$mongoTasks = new MongoModel('tasks');
 		$request->validate([
 			'task_id'=>'required'
 		]);
 
 		$taskId = $request->post('task_id');
-		$existTask = $mongoTasks->find(['_id'=>$taskId]);
+		$existTask = $this->taskService->getById($taskId);
 
 		if(!$existTask)
 		{
@@ -140,11 +143,11 @@ class TaskController extends Controller {
 			], 401);
 		}
 
-		$existTask['assigned'] = null;
+		$assigned = ['assigned' => null];
 
-		$mongoTasks->save($existTask);
+		$this->taskService->updateTask($existTask, $assigned);
 
-		$task = $mongoTasks->find(['_id'=>$taskId]);
+		$task = $this->taskService->getById($taskId);
 
 		return response()->json($task);
 	}

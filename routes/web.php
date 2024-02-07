@@ -22,7 +22,7 @@ Route::prefix('task')->group(function() {
     // NOTE: lanjutkan tugas assignment di routing baru dibawah ini
     Route::delete('/delete_task', [TaskController::class, 'deleteTask']);
     Route::post('/assign_task', [TaskController::class, 'assignTask']);
-    Route::post('/unassign_task', [TaskController::class, 'unassignTask']);
+    Route::patch('/unassign_task', [TaskController::class, 'unassignTask']);
     Route::post('/create_subtask', [TaskController::class, 'createSubtask']);
     Route::post('/delete_subtask', [TaskController::class, 'deleteSubtask']);
 });
