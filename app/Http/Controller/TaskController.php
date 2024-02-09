@@ -166,7 +166,7 @@ class TaskController extends Controller {
 		$title = $request->post('title');
 		$description = $request->post('description');
 
-		$existTask = $mongoTasks->find(['_id'=>$taskId]);
+		$existTask = $this->taskService->getById($taskId);
 
 		if(!$existTask)
 		{
@@ -175,19 +175,9 @@ class TaskController extends Controller {
 			], 401);
 		}
 
-		$subtasks = isset($existTask['subtasks']) ? $existTask['subtasks'] : [];
+		$this->taskService->addSubTask($existTask, $title, $description);
 
-		$subtasks[] = [
-			'_id'=> (string) new \MongoDB\BSON\ObjectId(),
-			'title'=>$title,
-			'description'=>$description
-		];
-
-		$existTask['subtasks'] = $subtasks;
-
-		$mongoTasks->save($existTask);
-
-		$task = $mongoTasks->find(['_id'=>$taskId]);
+		$task = $this->taskService->getById($taskId);
 
 		return response()->json($task);
 	}
@@ -204,7 +194,7 @@ class TaskController extends Controller {
 		$taskId = $request->post('task_id');
 		$subtaskId = $request->post('subtask_id');
 
-		$existTask = $mongoTasks->find(['_id'=>$taskId]);
+		$existTask = $this->taskService->getById($taskId);
 
 		if(!$existTask)
 		{
@@ -213,21 +203,7 @@ class TaskController extends Controller {
 			], 401);
 		}
 
-		$subtasks = isset($existTask['subtasks']) ? $existTask['subtasks'] : [];
-
-		// Pencarian dan penghapusan subtask
-		$subtasks = array_filter($subtasks, function($subtask) use($subtaskId) {
-			if($subtask['_id'] == $subtaskId)
-			{
-				return false;
-			} else {
-				return true;
-			}
-		});
-		$subtasks = array_values($subtasks);
-		$existTask['subtasks'] = $subtasks;
-
-		$mongoTasks->save($existTask);
+        $this->taskService->deleteSubTask($existTask, $subtaskId);
 
 		$task = $mongoTasks->find(['_id'=>$taskId]);
 
